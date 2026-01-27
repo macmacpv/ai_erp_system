@@ -1,0 +1,11 @@
+# AI App Python Dependencies
+# -------------------------
+# This file lists the libraries required to run the project tools.
+# Core tools use built-in libraries like 'os', 're', 'sys'
+# Setup virtual environment with ./_tools/setup_venv.py
+
+# Enter virtual environment before running any tools:
+# CMD> .venv\Scripts\activate
+
+# requests  # For API calls
+# numpy     # For data handling
