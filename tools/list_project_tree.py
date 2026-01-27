@@ -36,7 +36,7 @@ def list_project_files(startpath):
         'SERIALIZED_CONTEXT.txt', 'RECONSTRUCTOR_CONTEXT.md', 'START_CONTEXT.md',
         'reconstructor-file-list.txt', '_SESSION_ADDENDUM_BUFFER.md',
         'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'yarn-error.log', 
-        'pnpm-error.log', 'yarn-error.log', '.gitignore', '.gitkeep'
+        'pnpm-error.log', 'yarn-error.log', '.gitignore', '.gitkeep', '.gitattributes'
     }
     
     ignore_extensions = {
