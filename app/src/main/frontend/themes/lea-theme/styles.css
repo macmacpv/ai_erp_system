@@ -82,6 +82,7 @@ html {
 .border-test {
     border: 1px solid red;
 }
+/*------------------*/
 
 vaadin-button,
 vaadin-menu-bar-button,
@@ -93,17 +94,16 @@ vaadin-tab,
 }
 
 .address-bar {
+    width: 100%;
     max-width: 550px;
     background-color: var(--lumo-contrast-5pct);
     padding: 4px 16px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: var(--lumo-font-size-s);
+    font-size: var(--lumo-font-size-m);
     color: var(--lumo-primary-text-color);
     border: 1px solid var(--lumo-contrast-10pct);
 }
 
-.address-bar, .address-bar > span {
-    width: 100%;
-    text-align: center;
+.address-bar > * {
     text-wrap: nowrap;
 }

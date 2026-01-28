@@ -12,6 +12,7 @@ import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
@@ -23,14 +24,15 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 public class DashboardLayout extends AppLayout implements AfterNavigationObserver {
 
     private final AuthService authService;
-    private final Span currentPath = new Span();
+    private final HorizontalLayout addressBar = new HorizontalLayout();
 
-    public DashboardLayout(@Autowired AuthService authService) {
+    public DashboardLayout(AuthService authService) {
         this.authService = authService;
 
         setPrimarySection(Section.DRAWER);
@@ -42,9 +44,10 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
         DrawerToggle toggle = new DrawerToggle();
         toggle.addClassNames(LumoUtility.Margin.NONE);
 
-        HorizontalLayout addressBar = new HorizontalLayout(currentPath);
+        addressBar.setSpacing(false);
         addressBar.addClassName("address-bar");
         addressBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        addressBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         addressBar.addClassNames(LumoUtility.Margin.Left.SMALL, LumoUtility.Margin.Right.MEDIUM);
 
         HorizontalLayout userArea = new HorizontalLayout(createUserMenu());
@@ -139,9 +142,41 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        String path = event.getLocation().getPath();
-        if (path.isEmpty())
-            path = "home";
-        currentPath.setText("/ " + path.replace("/", " / "));
+        updateInteractiveBreadcrumbs(event);
+    }
+
+    private void updateInteractiveBreadcrumbs(AfterNavigationEvent event) {
+        addressBar.removeAll();
+
+        Icon homeIcon = VaadinIcon.HOME.create();
+        homeIcon.getStyle().set("padding-bottom", "2.5px");
+        homeIcon.addClassNames("clickable", LumoUtility.FontSize.XXSMALL);
+        homeIcon.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(DashboardPage.class)));
+        addressBar.add(homeIcon);
+
+        List<String> segments = event.getLocation().getSegments();
+        StringBuilder pathBuilder = new StringBuilder();
+
+        for (int i = 0; i < segments.size(); i++) {
+            Span slash = new Span("/");
+            slash.addClassNames(LumoUtility.Margin.Horizontal.SMALL, LumoUtility.TextColor.SECONDARY);
+            addressBar.add(slash);
+            String segment = segments.get(i);
+            pathBuilder.append(segment);
+
+            if (i < segments.size() - 1) {
+                final String targetPath = pathBuilder.toString();
+                Span segmentLink = new Span(segment);
+                segmentLink.addClassNames("clickable", LumoUtility.TextColor.PRIMARY);
+                segmentLink.getStyle().set("text-decoration", "underline");
+                segmentLink.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(targetPath)));
+                addressBar.add(segmentLink);
+            } else {
+                Span currentSegment = new Span(segment);
+                currentSegment.addClassNames(LumoUtility.TextColor.SECONDARY);
+                addressBar.add(currentSegment);
+            }
+            pathBuilder.append("/");
+        }
     }
 }
