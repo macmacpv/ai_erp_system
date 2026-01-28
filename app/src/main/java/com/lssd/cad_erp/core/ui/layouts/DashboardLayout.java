@@ -11,8 +11,7 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
@@ -21,12 +20,16 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DashboardLayout extends AppLayout {
+public class DashboardLayout extends AppLayout implements AfterNavigationObserver {
 
     private final AuthService authService;
+    private final Span viewTitle = new Span();
 
     public DashboardLayout(@Autowired AuthService authService) {
         this.authService = authService;
@@ -35,23 +38,51 @@ public class DashboardLayout extends AppLayout {
     }
 
     private void createHeader() {
-        H1 logo = new H1("L.S.S.D");
-        logo.addClassNames(LumoUtility.FontSize.LARGE);
-
-        HorizontalLayout userArea = new HorizontalLayout();
-        userArea.setAlignItems(FlexComponent.Alignment.CENTER);
-        userArea.add(createUserMenu());
+        // Dynamic Path Title styling (Green Area placeholder)
+        viewTitle.addClassNames(
+                LumoUtility.FontSize.MEDIUM,
+                LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.TextColor.PRIMARY);
 
         DrawerToggle toggle = new DrawerToggle();
-        toggle.getStyle().set("cursor", "pointer");
 
-        HorizontalLayout header = new HorizontalLayout(toggle, logo, userArea);
+        HorizontalLayout breadcrumb = new HorizontalLayout(toggle, viewTitle);
+        breadcrumb.setAlignItems(FlexComponent.Alignment.CENTER);
+        breadcrumb.setPadding(false);
+        breadcrumb.setSpacing(true);
+
+        HorizontalLayout userArea = new HorizontalLayout(createUserMenu());
+        userArea.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        HorizontalLayout header = new HorizontalLayout(breadcrumb, userArea);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.setWidthFull();
-        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Right.MEDIUM);
-        header.expand(logo);
+        header.expand(breadcrumb);
+        header.addClassNames(LumoUtility.Padding.Left.SMALL, LumoUtility.Padding.Right.MEDIUM);
 
         addToNavbar(header);
+    }
+
+    private void createDrawer() {
+        // Branding Section (Blue Area + Logo)
+        Image logo = new Image("/images/logo.png", "LSSD Logo");
+        H1 brandName = new H1("L.S.S.D");
+
+        HorizontalLayout branding = new HorizontalLayout(logo, brandName);
+        branding.setAlignItems(FlexComponent.Alignment.CENTER);
+        branding.addClassName("drawer-header");
+        branding.setWidthFull();
+
+        // Navigation items
+        SideNav mainNav = new SideNav();
+        mainNav.addItem(new SideNavItem("Dashboard", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
+        mainNav.addItem(new SideNavItem("Personnel", PersonnelPage.class, VaadinIcon.USERS.create()));
+
+        SideNav adminNav = new SideNav();
+        adminNav.setLabel("Root Access");
+        adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
+
+        addToDrawer(new VerticalLayout(branding, mainNav, adminNav));
     }
 
     private MenuBar createUserMenu() {
@@ -61,7 +92,7 @@ public class DashboardLayout extends AppLayout {
         Account account = (Account) authService.get().orElse(null);
         Employee employee = account != null ? account.getEmployee() : null;
 
-        String displayName = "Unknown";
+        String displayName = account != null ? account.getUsername() : "Guest";
         String subInfo = "User Account";
         String avatarLabel = "U";
 
@@ -75,15 +106,8 @@ public class DashboardLayout extends AppLayout {
                 String rankName = employee.getRank() != null ? employee.getRank().getName() : "Civilian";
                 String badge = employee.getBadgeNumber() != null ? "#" + employee.getBadgeNumber() : "";
                 subInfo = rankName + " " + badge;
-                avatarLabel = (employee.getFirstName() != null && !employee.getFirstName().isEmpty()
-                        ? employee.getFirstName().substring(0, 1)
-                        : "") +
-                        (employee.getLastName() != null && !employee.getLastName().isEmpty()
-                                ? employee.getLastName().substring(0, 1)
-                                : "");
-            } else {
-                displayName = account.getUsername();
-                avatarLabel = displayName.substring(0, 1).toUpperCase();
+                avatarLabel = (employee.getFirstName() != null ? employee.getFirstName().substring(0, 1) : "") +
+                        (employee.getLastName() != null ? employee.getLastName().substring(0, 1) : "");
             }
         }
 
@@ -92,13 +116,12 @@ public class DashboardLayout extends AppLayout {
         MenuItem menuItem = menuBar.addItem(avatar);
         SubMenu subMenu = menuItem.getSubMenu();
 
-        VerticalLayout headerLayout = new VerticalLayout();
-        headerLayout.setPadding(false);
-        headerLayout.setSpacing(false);
-        headerLayout.add(new Span(displayName));
+        VerticalLayout headerLayout = new VerticalLayout(new Span(displayName));
         Span subInfoSpan = new Span(subInfo);
         subInfoSpan.addClassNames(LumoUtility.FontSize.XSMALL, LumoUtility.TextColor.SECONDARY);
         headerLayout.add(subInfoSpan);
+        headerLayout.setPadding(false);
+        headerLayout.setSpacing(false);
 
         subMenu.addItem(headerLayout).setEnabled(false);
         subMenu.addItem("Logout", e -> authService.logout());
@@ -106,15 +129,13 @@ public class DashboardLayout extends AppLayout {
         return menuBar;
     }
 
-    private void createDrawer() {
-        SideNav mainNav = new SideNav();
-        mainNav.addItem(new SideNavItem("Dashboard", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
-        mainNav.addItem(new SideNavItem("Personnel", PersonnelPage.class, VaadinIcon.USERS.create()));
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        viewTitle.setText("> " + getCurrentPageTitle());
+    }
 
-        SideNav adminNav = new SideNav();
-        adminNav.setLabel("Root Access");
-        adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
-
-        addToDrawer(mainNav, adminNav);
+    private String getCurrentPageTitle() {
+        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
+        return title == null ? "Untitled" : title.value().split("\\|")[0].trim();
     }
 }

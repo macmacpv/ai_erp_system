@@ -78,17 +78,59 @@ html {
     --lumo-error-contrast-color: #ffffff;
 }
 
-vaadin-login-form-wrapper {
-    background: none !important;
-}
-
-vaadin-login-form-wrapper::part(form-title) {
-    text-align: center;
-}
-
+/* Navbar & Global Pointer */
+vaadin-button,
 vaadin-menu-bar-button,
-vaadin-menu-bar-item:enabled,
+vaadin-menu-bar-item,
 vaadin-drawer-toggle,
-vaadin-tab {
-    cursor: pointer;
+vaadin-tab,
+.clickable {
+    cursor: pointer !important;
+}
+
+/* Sidebar Structural Separation */
+vaadin-app-layout::part(drawer) {
+    border-right: 1px solid var(--lumo-contrast-10pct);
+    background-color: var(--lumo-base-color);
+}
+
+/* Branding Area at the top of Sidebar */
+.drawer-header {
+    padding: var(--lumo-space-m) var(--lumo-space-l);
+    background: var(--lumo-contrast-5pct);
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+    margin-bottom: var(--lumo-space-s);
+}
+
+.drawer-header img {
+    height: 32px;
+    width: auto;
+    margin-right: var(--lumo-space-m);
+}
+
+.drawer-header h1 {
+    font-size: var(--lumo-font-size-xl);
+    margin: 0;
+    letter-spacing: 2px;
+    color: var(--lumo-primary-color);
+    font-variant: small-caps;
+}
+
+/* SideNav Padding & Margins */
+vaadin-side-nav {
+    padding: 0 var(--lumo-space-s);
+}
+
+vaadin-side-nav-item {
+    margin: 4px 0;
+    border-radius: var(--lumo-border-radius-m);
+}
+
+vaadin-side-nav-item::part(link):hover {
+    background-color: var(--lumo-contrast-5pct);
+}
+
+vaadin-side-nav-item[active]::part(link) {
+    background-color: var(--lumo-primary-color-10pct);
+    color: var(--lumo-primary-text-color);
 }

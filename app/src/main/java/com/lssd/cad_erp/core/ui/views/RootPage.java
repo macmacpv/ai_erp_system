@@ -15,7 +15,6 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -25,6 +24,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -42,22 +42,20 @@ public class RootPage extends VerticalLayout {
     private final PermissionRepository permissionRepository;
     private final VerticalLayout content = new VerticalLayout();
 
-    public RootPage(RankRepository rankRepository, 
-                    PermissionGroupRepository groupRepository,
-                    PermissionRepository permissionRepository) {
+    public RootPage(RankRepository rankRepository,
+            PermissionGroupRepository groupRepository,
+            PermissionRepository permissionRepository) {
         this.rankRepository = rankRepository;
         this.groupRepository = groupRepository;
         this.permissionRepository = permissionRepository;
 
         setSizeFull();
         setPadding(true);
-        
-        add(new H2("System Configuration"));
 
         Tabs tabs = createTabs();
         content.setSizeFull();
         add(tabs, content);
-        
+
         showRanks(); // Default view
     }
 
@@ -68,8 +66,10 @@ public class RootPage extends VerticalLayout {
         tabs.setWidthFull();
         tabs.addSelectedChangeListener(e -> {
             content.removeAll();
-            if (e.getSelectedTab().equals(ranksTab)) showRanks();
-            else showGroups();
+            if (e.getSelectedTab().equals(ranksTab))
+                showRanks();
+            else
+                showGroups();
         });
         return tabs;
     }
@@ -86,25 +86,26 @@ public class RootPage extends VerticalLayout {
     private void showRanks() {
         Grid<Rank> grid = new Grid<>(Rank.class, false);
         grid.setSizeFull();
-        
+
         grid.addComponentColumn(r -> createBadge(r.getName(), r.getColor()))
-            .setHeader("Rank").setSortable(true).setComparator(Rank::getName);
-        grid.addColumn(Rank::getWeight).setHeader("Weight").setSortable(true);
+                .setHeader("Rank").setSortable(true).setComparator(Rank::getName);
+        grid.addColumn(Rank::getWeight).setHeader("Weight").setSortable(true).setKey("weight");
         grid.addColumn(r -> r.getPermissions().size()).setHeader("Perms Count");
-        
+
         grid.addComponentColumn(r -> new HorizontalLayout(
                 new Button(VaadinIcon.EDIT.create(), e -> openRankDialog(r, grid)),
-                new Button(VaadinIcon.TRASH.create(), e -> confirmDeleteRank(r, grid))
-        )).setHeader("Actions").setAutoWidth(true);
+                new Button(VaadinIcon.TRASH.create(), e -> confirmDeleteRank(r, grid)))).setHeader("Actions")
+                .setAutoWidth(true);
 
         GridListDataView<Rank> dataView = grid.setItems(rankRepository.findAll());
+        dataView.setSortOrder(Rank::getWeight, SortDirection.DESCENDING);
 
         TextField searchField = new TextField();
         searchField.setPlaceholder("Filter Ranks...");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
-        searchField.addValueChangeListener(e -> dataView.addFilter(rank -> 
-            rank.getName().toLowerCase().contains(e.getValue().toLowerCase())));
+        searchField.addValueChangeListener(
+                e -> dataView.setFilter(rank -> rank.getName().toLowerCase().contains(e.getValue().toLowerCase())));
 
         Button addBtn = new Button("New Rank", VaadinIcon.PLUS.create(), e -> openRankDialog(new Rank(), grid));
         addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -123,7 +124,7 @@ public class RootPage extends VerticalLayout {
         TextField name = new TextField("Rank Name");
         name.setWidthFull();
         name.setValue(rank.getName() != null ? rank.getName() : "");
-        
+
         IntegerField weight = new IntegerField("Weight (Priority)");
         weight.setWidthFull();
         weight.setValue(rank.getWeight() != null ? rank.getWeight() : 0);
@@ -157,10 +158,11 @@ public class RootPage extends VerticalLayout {
     }
 
     private void confirmDeleteRank(Rank rank, Grid<Rank> grid) {
-        ConfirmDialog dialog = new ConfirmDialog("Delete Rank?", "Are you sure you want to delete " + rank.getName() + "?", "Delete", e -> {
-            rankRepository.delete(rank);
-            grid.setItems(rankRepository.findAll());
-        });
+        ConfirmDialog dialog = new ConfirmDialog("Delete Rank?",
+                "Are you sure you want to delete " + rank.getName() + "?", "Delete", e -> {
+                    rankRepository.delete(rank);
+                    grid.setItems(rankRepository.findAll());
+                });
         dialog.setConfirmButtonTheme("error primary");
         dialog.open();
     }
@@ -170,14 +172,14 @@ public class RootPage extends VerticalLayout {
         grid.setSizeFull();
 
         grid.addComponentColumn(g -> createBadge(g.getName(), g.getColor()))
-            .setHeader("Group").setSortable(true).setComparator(PermissionGroup::getName);
+                .setHeader("Group").setSortable(true).setComparator(PermissionGroup::getName);
         grid.addColumn(PermissionGroup::getType).setHeader("Type").setSortable(true);
         grid.addColumn(g -> g.getPermissions().size()).setHeader("Perms Count");
-        
+
         grid.addComponentColumn(g -> new HorizontalLayout(
                 new Button(VaadinIcon.EDIT.create(), e -> openGroupDialog(g, grid)),
-                new Button(VaadinIcon.TRASH.create(), e -> confirmDeleteGroup(g, grid))
-        )).setHeader("Actions").setAutoWidth(true);
+                new Button(VaadinIcon.TRASH.create(), e -> confirmDeleteGroup(g, grid)))).setHeader("Actions")
+                .setAutoWidth(true);
 
         GridListDataView<PermissionGroup> dataView = grid.setItems(groupRepository.findAll());
 
@@ -185,10 +187,11 @@ public class RootPage extends VerticalLayout {
         searchField.setPlaceholder("Filter Groups...");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
-        searchField.addValueChangeListener(e -> dataView.addFilter(group -> 
-            group.getName().toLowerCase().contains(e.getValue().toLowerCase())));
+        searchField.addValueChangeListener(
+                e -> dataView.setFilter(group -> group.getName().toLowerCase().contains(e.getValue().toLowerCase())));
 
-        Button addBtn = new Button("New Group", VaadinIcon.PLUS.create(), e -> openGroupDialog(new PermissionGroup(), grid));
+        Button addBtn = new Button("New Group", VaadinIcon.PLUS.create(),
+                e -> openGroupDialog(new PermissionGroup(), grid));
         addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         HorizontalLayout toolbar = new HorizontalLayout(searchField, addBtn);
@@ -205,7 +208,7 @@ public class RootPage extends VerticalLayout {
         TextField name = new TextField("Group Name");
         name.setWidthFull();
         name.setValue(group.getName() != null ? group.getName() : "");
-        
+
         TextField type = new TextField("Group Type (e.g. DEPT)");
         type.setWidthFull();
         type.setValue(group.getType() != null ? group.getType() : "");
