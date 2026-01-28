@@ -78,6 +78,11 @@ html {
     --lumo-error-contrast-color: #ffffff;
 }
 
+/*FOR OBJECT TESTING*/
+.border-test {
+    border: 1px solid red;
+}
+
 vaadin-button,
 vaadin-menu-bar-button,
 vaadin-menu-bar-item,
@@ -88,12 +93,17 @@ vaadin-tab,
 }
 
 .address-bar {
+    max-width: 550px;
     background-color: var(--lumo-contrast-5pct);
     padding: 4px 16px;
-    border-radius: 8px;
     font-family: 'Courier New', Courier, monospace;
     font-size: var(--lumo-font-size-s);
     color: var(--lumo-primary-text-color);
     border: 1px solid var(--lumo-contrast-10pct);
-    margin-left: var(--lumo-space-m);
+}
+
+.address-bar, .address-bar > span {
+    width: 100%;
+    text-align: center;
+    text-wrap: nowrap;
 }
