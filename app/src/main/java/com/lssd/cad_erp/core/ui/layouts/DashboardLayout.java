@@ -38,18 +38,19 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
     }
 
     private void createHeader() {
-        // Dynamic Path Title styling (Green Area placeholder)
         viewTitle.addClassNames(
-                LumoUtility.FontSize.MEDIUM,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.TextColor.PRIMARY);
+            LumoUtility.FontSize.MEDIUM, 
+            LumoUtility.FontWeight.MEDIUM,
+            LumoUtility.TextColor.PRIMARY,
+            LumoUtility.Margin.Left.SMALL
+        );
 
         DrawerToggle toggle = new DrawerToggle();
 
         HorizontalLayout breadcrumb = new HorizontalLayout(toggle, viewTitle);
         breadcrumb.setAlignItems(FlexComponent.Alignment.CENTER);
         breadcrumb.setPadding(false);
-        breadcrumb.setSpacing(true);
+        breadcrumb.setSpacing(false);
 
         HorizontalLayout userArea = new HorizontalLayout(createUserMenu());
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -64,16 +65,25 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
     }
 
     private void createDrawer() {
-        // Branding Section (Blue Area + Logo)
-        Image logo = new Image("/images/logo.png", "LSSD Logo");
-        H1 brandName = new H1("L.S.S.D");
+        // Wrapper for drawer content to manage spacing
+        VerticalLayout drawerContent = new VerticalLayout();
+        drawerContent.setSizeFull();
+        drawerContent.setPadding(false);
+        drawerContent.setSpacing(false);
 
+        // Branding Section
+        Image logo = new Image("/images/logo.png", "LSSD Logo");
+        logo.setHeight("42px");
+        logo.setWidth("42px");
+        
+        H1 brandName = new H1("L.S.S.D");
+        
         HorizontalLayout branding = new HorizontalLayout(logo, brandName);
         branding.setAlignItems(FlexComponent.Alignment.CENTER);
         branding.addClassName("drawer-header");
         branding.setWidthFull();
 
-        // Navigation items
+        // Navigation
         SideNav mainNav = new SideNav();
         mainNav.addItem(new SideNavItem("Dashboard", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
         mainNav.addItem(new SideNavItem("Personnel", PersonnelPage.class, VaadinIcon.USERS.create()));
@@ -82,7 +92,10 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
         adminNav.setLabel("Root Access");
         adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
 
-        addToDrawer(new VerticalLayout(branding, mainNav, adminNav));
+        // Add to the vertical container
+        drawerContent.add(branding, mainNav, adminNav);
+        
+        addToDrawer(drawerContent);
     }
 
     private MenuBar createUserMenu() {
@@ -106,8 +119,8 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
                 String rankName = employee.getRank() != null ? employee.getRank().getName() : "Civilian";
                 String badge = employee.getBadgeNumber() != null ? "#" + employee.getBadgeNumber() : "";
                 subInfo = rankName + " " + badge;
-                avatarLabel = (employee.getFirstName() != null ? employee.getFirstName().substring(0, 1) : "") +
-                        (employee.getLastName() != null ? employee.getLastName().substring(0, 1) : "");
+                avatarLabel = (employee.getFirstName() != null && !employee.getFirstName().isEmpty() ? employee.getFirstName().substring(0, 1) : "") +
+                              (employee.getLastName() != null && !employee.getLastName().isEmpty() ? employee.getLastName().substring(0, 1) : "");
             }
         }
 
