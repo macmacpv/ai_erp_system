@@ -32,11 +32,16 @@ public class LoginPage extends VerticalLayout implements HasDynamicTitle, Before
     private LoginForm createLoginForm(){
         LoginI18n i18n = LoginI18n.createDefault();
         LoginI18n.Form form = i18n.getForm();
-        form.setTitle("LSSD | CAD");
-        form.setSubmit("Zaloguj");
-        form.setUsername("Nazwa użytkownika");
-        form.setPassword("Hasło");
+        form.setTitle(getTranslation("login.title"));
+        form.setSubmit(getTranslation("login.submit"));
+        form.setUsername(getTranslation("login.username"));
+        form.setPassword(getTranslation("login.password"));
         i18n.setForm(form);
+        
+        LoginI18n.ErrorMessage error = i18n.getErrorMessage();
+        error.setTitle(getTranslation("login.error"));
+        error.setMessage("");
+        i18n.setErrorMessage(error);
 
         loginForm.setI18n(i18n);
         loginForm.setAction("login");

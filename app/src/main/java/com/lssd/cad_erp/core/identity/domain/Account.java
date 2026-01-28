@@ -45,25 +45,14 @@ public class Account implements UserDetails {
     )
     private Set<Permission> directPermissions = new HashSet<>();
 
-    /**
-     * Advanced ACE Check with Wildcard support.
-     * @param requiredNode The permission node to check (e.g. "personnel.view")
-     * @return true if account has exact match, global wildcard (*), or partial wildcard (personnel.*)
-     */
     public boolean hasPermission(String requiredNode) {
         if (root) return true;
         
         Collection<? extends GrantedAuthority> authorities = getAuthorities();
         for (GrantedAuthority auth : authorities) {
             String granted = auth.getAuthority();
-            
-            // 1. Global wildcard
             if (granted.equals("*")) return true;
-            
-            // 2. Exact match
             if (granted.equals(requiredNode)) return true;
-            
-            // 3. Hierarchical wildcard (e.g. "personnel.*" matches "personnel.view")
             if (granted.endsWith(".*")) {
                 String prefix = granted.substring(0, granted.length() - 2);
                 if (requiredNode.startsWith(prefix)) return true;
@@ -72,19 +61,14 @@ public class Account implements UserDetails {
         return false;
     }
 
-    /**
-     * Checks if this account can manage (grant/revoke) a specific permission node.
-     * Only root can manage "sys.*" or "restricted.*".
-     */
     public boolean canManagePermission(String targetNode) {
         if (root) return true;
         
-        // Non-root cannot touch restricted/system nodes
-        if (targetNode.startsWith("sys.") || targetNode.startsWith("restricted.")) {
+        // Critical: Only root can manage the global wildcard or restricted nodes
+        if (targetNode.equals("*") || targetNode.startsWith("sys.") || targetNode.startsWith("restricted.")) {
             return false;
         }
 
-        // Check for scoped permission editing (e.g. "personnel.permissions.edit" allows managing "personnel.*")
         Collection<? extends GrantedAuthority> authorities = getAuthorities();
         for (GrantedAuthority auth : authorities) {
             String granted = auth.getAuthority();
@@ -106,21 +90,16 @@ public class Account implements UserDetails {
         }
 
         Set<GrantedAuthority> authorities = new HashSet<>();
-        
-        // 1. Direct Technical Permissions (from Account)
         authorities.addAll(directPermissions.stream()
                 .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
                 .collect(Collectors.toSet()));
 
-        // 2. Personnel Permissions (from Employee record)
         if (employee != null) {
-            // From Rank
             if (employee.getRank() != null) {
                 authorities.addAll(employee.getRank().getPermissions().stream()
                         .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
                         .collect(Collectors.toSet()));
             }
-            // From Groups
             for (PermissionGroup group : employee.getGroups()) {
                 authorities.addAll(group.getPermissions().stream()
                         .map(p -> new SimpleGrantedAuthority(p.getNodeString()))

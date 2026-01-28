@@ -2,6 +2,8 @@ package com.lssd.cad_erp.core.ui.layouts;
 
 import com.lssd.cad_erp.core.identity.domain.Account;
 import com.lssd.cad_erp.core.identity.services.AuthService;
+import com.lssd.cad_erp.core.notifications.repositories.NotificationRepository;
+import com.lssd.cad_erp.core.ui.components.NotificationBell;
 import com.lssd.cad_erp.core.ui.views.DashboardPage;
 import com.lssd.cad_erp.core.ui.views.RootPage;
 import com.lssd.cad_erp.modules.personnel.domain.Employee;
@@ -30,10 +32,12 @@ import java.util.List;
 public class DashboardLayout extends AppLayout implements AfterNavigationObserver {
 
     private final AuthService authService;
+    private final NotificationRepository notificationRepository;
     private final HorizontalLayout addressBar = new HorizontalLayout();
 
-    public DashboardLayout(AuthService authService) {
+    public DashboardLayout(AuthService authService, NotificationRepository notificationRepository) {
         this.authService = authService;
+        this.notificationRepository = notificationRepository;
 
         setPrimarySection(Section.DRAWER);
         createHeader();
@@ -50,8 +54,12 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
         addressBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         addressBar.addClassNames(LumoUtility.Margin.Left.SMALL, LumoUtility.Margin.Right.MEDIUM);
 
-        HorizontalLayout userArea = new HorizontalLayout(createUserMenu());
+        Account current = (Account) authService.get().orElse(null);
+        NotificationBell bell = new NotificationBell(notificationRepository, current);
+
+        HorizontalLayout userArea = new HorizontalLayout(bell, createUserMenu());
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
+        userArea.setSpacing(true);
 
         HorizontalLayout header = new HorizontalLayout(toggle, addressBar, userArea);
         header.setWidthFull();
@@ -81,21 +89,18 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
 
         SideNav mainNav = new SideNav();
         mainNav.setWidthFull();
-        mainNav.addItem(new SideNavItem("Dashboard", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
-        
-        // Module Personnel - basic check
-        mainNav.addItem(new SideNavItem("Personnel", PersonnelPage.class, VaadinIcon.USERS.create()));
+        mainNav.addItem(new SideNavItem(getTranslation("nav.dashboard"), DashboardPage.class, VaadinIcon.DASHBOARD.create()));
+        mainNav.addItem(new SideNavItem(getTranslation("nav.personnel"), PersonnelPage.class, VaadinIcon.USERS.create()));
 
         drawerContent.add(branding, line, mainNav);
 
-        // Security: ROOT section only for real root accounts
         Account currentAccount = (Account) authService.get().orElse(null);
         if (currentAccount != null && currentAccount.isRoot()) {
             SideNav adminNav = new SideNav();
             adminNav.setWidthFull();
             adminNav.addClassNames(LumoUtility.Padding.Top.SMALL);
-            adminNav.setLabel("ROOT");
-            adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
+            adminNav.setLabel(getTranslation("nav.root"));
+            adminNav.addItem(new SideNavItem(getTranslation("nav.root.config"), RootPage.class, VaadinIcon.SERVER.create()));
             drawerContent.add(adminNav);
         }
 
