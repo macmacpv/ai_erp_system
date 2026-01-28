@@ -85,3 +85,10 @@ vaadin-login-form-wrapper {
 vaadin-login-form-wrapper::part(form-title) {
     text-align: center;
 }
+
+vaadin-menu-bar-button,
+vaadin-menu-bar-item:enabled,
+vaadin-drawer-toggle,
+vaadin-tab {
+    cursor: pointer;
+}

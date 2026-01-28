@@ -48,7 +48,7 @@ public class DashboardLayout extends AppLayout {
         HorizontalLayout header = new HorizontalLayout(toggle, logo, userArea);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.setWidthFull();
-        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
+        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Right.MEDIUM);
         header.expand(logo);
 
         addToNavbar(header);
@@ -75,8 +75,12 @@ public class DashboardLayout extends AppLayout {
                 String rankName = employee.getRank() != null ? employee.getRank().getName() : "Civilian";
                 String badge = employee.getBadgeNumber() != null ? "#" + employee.getBadgeNumber() : "";
                 subInfo = rankName + " " + badge;
-                avatarLabel = (employee.getFirstName() != null && !employee.getFirstName().isEmpty() ? employee.getFirstName().substring(0, 1) : "") +
-                              (employee.getLastName() != null && !employee.getLastName().isEmpty() ? employee.getLastName().substring(0, 1) : "");
+                avatarLabel = (employee.getFirstName() != null && !employee.getFirstName().isEmpty()
+                        ? employee.getFirstName().substring(0, 1)
+                        : "") +
+                        (employee.getLastName() != null && !employee.getLastName().isEmpty()
+                                ? employee.getLastName().substring(0, 1)
+                                : "");
             } else {
                 displayName = account.getUsername();
                 avatarLabel = displayName.substring(0, 1).toUpperCase();

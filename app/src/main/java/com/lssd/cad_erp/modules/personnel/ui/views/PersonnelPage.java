@@ -30,13 +30,15 @@ public class PersonnelPage extends VerticalLayout {
     public PersonnelPage(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
         setSizeFull();
+        setPadding(true);
 
         add(new H2("Personnel Management"));
 
         Tabs tabs = createTabs();
+        content.setSizeFull();
         add(tabs, content);
 
-        showDepartmentRoster(); // Default
+        showDepartmentRoster(); // Default view
     }
 
     private Tabs createTabs() {
@@ -58,7 +60,6 @@ public class PersonnelPage extends VerticalLayout {
     private void showDepartmentRoster() {
         Grid<Employee> grid = createBaseGrid();
 
-        // Custom Sorting: By Rank Weight DESC, then Last Name
         List<Employee> officers = employeeRepository.findAll().stream()
                 .filter(e -> e.getRank() != null)
                 .sorted(Comparator.comparing((Employee e) -> e.getRank().getWeight()).reversed()
@@ -82,11 +83,15 @@ public class PersonnelPage extends VerticalLayout {
 
     private Grid<Employee> createBaseGrid() {
         Grid<Employee> grid = new Grid<>(Employee.class, false);
-        grid.addColumn(Employee::getBadgeNumber).setHeader("Badge").setAutoWidth(true);
-        grid.addComponentColumn(this::createRankBadge).setHeader("Rank").setAutoWidth(true);
-        grid.addColumn(Employee::getFirstName).setHeader("First Name");
-        grid.addColumn(Employee::getLastName).setHeader("Last Name");
-        grid.addColumn(e -> e.getAccount().getUsername()).setHeader("Account");
+        grid.setSizeFull();
+
+        grid.addColumn(Employee::getBadgeNumber).setHeader("Badge").setSortable(true).setAutoWidth(true);
+        grid.addComponentColumn(this::createRankBadge).setHeader("Rank").setSortable(true)
+                .setComparator(e -> e.getRank() != null ? e.getRank().getWeight() : 0);
+        grid.addColumn(Employee::getFirstName).setHeader("First Name").setSortable(true);
+        grid.addColumn(Employee::getLastName).setHeader("Last Name").setSortable(true);
+        grid.addColumn(e -> e.getAccount().getUsername()).setHeader("Account").setSortable(true);
+
         return grid;
     }
 
@@ -98,6 +103,7 @@ public class PersonnelPage extends VerticalLayout {
         badge.getElement().getThemeList().add("badge outline");
         badge.getStyle().set("color", r.getColor());
         badge.getStyle().set("border-color", r.getColor());
+        badge.getStyle().set("font-weight", "bold");
         return badge;
     }
 }
