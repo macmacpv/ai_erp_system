@@ -3,6 +3,7 @@ package com.lssd.cad_erp.core.ui.layouts;
 import com.lssd.cad_erp.core.identity.domain.Account;
 import com.lssd.cad_erp.core.identity.services.AuthService;
 import com.lssd.cad_erp.core.notifications.repositories.NotificationRepository;
+import com.lssd.cad_erp.core.notifications.services.AppNotificationService;
 import com.lssd.cad_erp.core.ui.components.NotificationBell;
 import com.lssd.cad_erp.core.ui.views.DashboardPage;
 import com.lssd.cad_erp.core.ui.views.RootPage;
@@ -33,11 +34,15 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
 
     private final AuthService authService;
     private final NotificationRepository notificationRepository;
+    private final AppNotificationService notificationService;
     private final HorizontalLayout addressBar = new HorizontalLayout();
 
-    public DashboardLayout(AuthService authService, NotificationRepository notificationRepository) {
+    public DashboardLayout(AuthService authService, 
+                          NotificationRepository notificationRepository,
+                          AppNotificationService notificationService) {
         this.authService = authService;
         this.notificationRepository = notificationRepository;
+        this.notificationService = notificationService;
 
         setPrimarySection(Section.DRAWER);
         createHeader();
@@ -55,11 +60,11 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
         addressBar.addClassNames(LumoUtility.Margin.Left.SMALL, LumoUtility.Margin.Right.MEDIUM);
 
         Account current = (Account) authService.get().orElse(null);
-        NotificationBell bell = new NotificationBell(notificationRepository, current);
+        NotificationBell bell = new NotificationBell(notificationRepository, notificationService, current);
 
         HorizontalLayout userArea = new HorizontalLayout(bell, createUserMenu());
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
-        userArea.setSpacing(true);
+        userArea.setSpacing(false);
 
         HorizontalLayout header = new HorizontalLayout(toggle, addressBar, userArea);
         header.setWidthFull();

@@ -1,8 +1,6 @@
 package com.lssd.cad_erp.core.ui.utils;
 
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -30,22 +28,21 @@ public class Notify {
 
     private static void show(String message, NotificationVariant variant, VaadinIcon iconType) {
         Notification notification = new Notification();
-        notification.setDuration(5000);
+        notification.setDuration(4000);
+        
+        // Positioning and styling is handled in styles.css via vaadin-notification-card
         notification.setPosition(Notification.Position.BOTTOM_END);
 
         HorizontalLayout layout = new HorizontalLayout();
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
-
+        layout.setSpacing(true);
+        
         Icon icon = iconType.create();
         layout.add(icon, new Text(message));
 
         if (variant != null) {
             notification.addThemeVariants(variant);
         }
-
-        Button closeBtn = new Button(VaadinIcon.CLOSE.create(), e -> notification.close());
-        closeBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        layout.add(closeBtn);
 
         notification.add(layout);
         notification.open();

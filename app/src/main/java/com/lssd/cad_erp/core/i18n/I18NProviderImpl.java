@@ -9,11 +9,12 @@ import java.util.*;
 @Component
 public class I18NProviderImpl implements I18NProvider {
 
-    private final ResourceBundle bundlePl = ResourceBundle.getBundle("messages", new Locale("pl"));
+    // Fixed: Using Locale.forLanguageTag instead of deprecated constructor
+    private final ResourceBundle bundlePl = ResourceBundle.getBundle("messages", Locale.forLanguageTag("pl"));
 
     @Override
     public List<Locale> getProvidedLocales() {
-        return List.of(new Locale("pl"));
+        return List.of(Locale.forLanguageTag("pl"));
     }
 
     @Override

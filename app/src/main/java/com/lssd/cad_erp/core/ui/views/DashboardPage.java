@@ -2,8 +2,7 @@ package com.lssd.cad_erp.core.ui.views;
 
 import com.lssd.cad_erp.core.identity.domain.Account;
 import com.lssd.cad_erp.core.identity.services.AuthService;
-import com.lssd.cad_erp.core.notifications.domain.AppNotification;
-import com.lssd.cad_erp.core.notifications.repositories.NotificationRepository;
+import com.lssd.cad_erp.core.notifications.services.AppNotificationService;
 import com.lssd.cad_erp.core.ui.layouts.DashboardLayout;
 import com.lssd.cad_erp.core.ui.utils.Notify;
 import com.vaadin.flow.component.button.Button;
@@ -21,11 +20,11 @@ import jakarta.annotation.security.PermitAll;
 @PermitAll
 public class DashboardPage extends VerticalLayout {
     
-    private final NotificationRepository notificationRepository;
+    private final AppNotificationService notificationService;
     private final AuthService authService;
 
-    public DashboardPage(NotificationRepository notificationRepository, AuthService authService) {
-        this.notificationRepository = notificationRepository;
+    public DashboardPage(AppNotificationService notificationService, AuthService authService) {
+        this.notificationService = notificationService;
         this.authService = authService;
         
         add(new H2(getTranslation("dashboard.welcome")));
@@ -33,10 +32,10 @@ public class DashboardPage extends VerticalLayout {
         add(new H3(getTranslation("dashboard.test.notifications")));
         
         HorizontalLayout toastButtons = new HorizontalLayout(
-            new Button(getTranslation("dashboard.btn.info"), e -> Notify.info("To jest informacja")),
-            new Button(getTranslation("dashboard.btn.success"), e -> Notify.success("Akcja zakończona sukcesem!")),
-            new Button(getTranslation("dashboard.btn.warning"), e -> Notify.warning("Uwaga! Sprawdź dane.")),
-            new Button(getTranslation("dashboard.btn.error"), e -> Notify.error("Wystąpił błąd krytyczny!"))
+            new Button(getTranslation("dashboard.btn.info"), e -> Notify.info("Informacja systemowa.")),
+            new Button(getTranslation("dashboard.btn.success"), e -> Notify.success("Zapisano pomyślnie.")),
+            new Button(getTranslation("dashboard.btn.warning"), e -> Notify.warning("Uwaga: Brak uprawnień.")),
+            new Button(getTranslation("dashboard.btn.error"), e -> Notify.error("Błąd krytyczny bazy danych!"))
         );
         toastButtons.getComponentAt(1).getElement().getThemeList().add("success");
         toastButtons.getComponentAt(3).getElement().getThemeList().add("error");
@@ -51,13 +50,13 @@ public class DashboardPage extends VerticalLayout {
         Account current = (Account) authService.get().orElse(null);
         if (current == null) return;
 
-        AppNotification n = new AppNotification();
-        n.setRecipient(current);
-        n.setTitle("System Update");
-        n.setContent("Twoje uprawnienia zostały zaktualizowane przez administratora.");
-        n.setType("INFO");
-        notificationRepository.save(n);
+        notificationService.notify(
+            current, 
+            "Real-Time Update", 
+            "To powiadomienie powinno pojawić się natychmiast dzięki mechanizmowi Push!", 
+            "INFO"
+        );
         
-        Notify.success("Wysłano powiadomienie do dzwonka. Odśwież widok lub sprawdź dzwonek.");
+        Notify.success("Powiadomienie Push wysłane.");
     }
 }

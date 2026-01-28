@@ -78,12 +78,6 @@ html {
     --lumo-error-contrast-color: #ffffff;
 }
 
-/*FOR OBJECT TESTING*/
-.border-test {
-    border: 1px solid red;
-}
-/*------------------*/
-
 vaadin-button,
 vaadin-menu-bar-button,
 vaadin-menu-bar-item,
@@ -106,4 +100,24 @@ vaadin-tab,
 
 .address-bar > * {
     text-wrap: nowrap;
+}
+
+/* CUSTOM NOTIFICATIONS */
+vaadin-notification-card {
+    min-width: 25vw;
+    max-width: 25vw;
+    margin-bottom: 25px !important;
+    margin-right: 25px !important;
+}
+
+/* Mobile override for notifications */
+@media (max-width: 600px) {
+    vaadin-notification-card {
+        min-width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
 }
