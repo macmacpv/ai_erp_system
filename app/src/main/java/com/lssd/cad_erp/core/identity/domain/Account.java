@@ -1,5 +1,6 @@
 package com.lssd.cad_erp.core.identity.domain;
 
+import com.lssd.cad_erp.modules.personnel.domain.Employee;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,9 @@ public class Account implements UserDetails {
     @Column(name = "is_root")
     private boolean root = false;
 
+    @OneToOne(mappedBy = "account", fetch = FetchType.EAGER)
+    private Employee employee;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_permissions",
@@ -44,24 +48,29 @@ public class Account implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (root) {
-            // Root has universal access flag
             return Set.of(new SimpleGrantedAuthority("ROLE_ROOT"), new SimpleGrantedAuthority("ROLE_USER"));
         }
 
-        return directPermissions.stream()
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        authorities.addAll(directPermissions.stream()
                 .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()));
+
+        if (employee != null && employee.getRank() != null) {
+            authorities.addAll(employee.getRank().getPermissions().stream()
+                    .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
+                    .collect(Collectors.toSet()));
+        }
+        
+        return authorities;
     }
 
     @Override
     public boolean isAccountNonExpired() { return true; }
-
     @Override
     public boolean isAccountNonLocked() { return active; }
-
     @Override
     public boolean isCredentialsNonExpired() { return true; }
-
     @Override
     public boolean isEnabled() { return active; }
 }

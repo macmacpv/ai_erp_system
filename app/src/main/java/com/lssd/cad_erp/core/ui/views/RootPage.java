@@ -8,11 +8,11 @@ import com.vaadin.flow.router.Route;
 
 import jakarta.annotation.security.PermitAll;
 
-@Route(value = "admin/database", layout = DashboardLayout.class)
+@Route(value = "root", layout = DashboardLayout.class)
 @PageTitle("Zarządzanie | LSSD")
 @PermitAll
-public class DatabasePage extends VerticalLayout {
-    public DatabasePage() {
+public class RootPage extends VerticalLayout {
+    public RootPage() {
         add(new H2("Zarządzanie Systemem"));
     }
 }
