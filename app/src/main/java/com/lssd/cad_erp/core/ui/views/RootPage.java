@@ -1,9 +1,11 @@
 package com.lssd.cad_erp.core.ui.views;
 
+import com.lssd.cad_erp.core.identity.domain.Account;
 import com.lssd.cad_erp.core.identity.domain.Permission;
 import com.lssd.cad_erp.core.identity.domain.PermissionGroup;
 import com.lssd.cad_erp.core.identity.repositories.PermissionGroupRepository;
 import com.lssd.cad_erp.core.identity.repositories.PermissionRepository;
+import com.lssd.cad_erp.core.identity.services.AuthService;
 import com.lssd.cad_erp.core.ui.layouts.DashboardLayout;
 import com.lssd.cad_erp.modules.personnel.domain.Rank;
 import com.lssd.cad_erp.modules.personnel.repositories.RankRepository;
@@ -31,20 +33,25 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "root", layout = DashboardLayout.class)
 @PageTitle("System Configuration | LSSD")
 @RolesAllowed("ROOT")
 public class RootPage extends VerticalLayout {
 
+    private final AuthService authService;
     private final RankRepository rankRepository;
     private final PermissionGroupRepository groupRepository;
     private final PermissionRepository permissionRepository;
     private final VerticalLayout content = new VerticalLayout();
 
-    public RootPage(RankRepository rankRepository,
+    public RootPage(AuthService authService,
+            RankRepository rankRepository,
             PermissionGroupRepository groupRepository,
             PermissionRepository permissionRepository) {
+        this.authService = authService;
         this.rankRepository = rankRepository;
         this.groupRepository = groupRepository;
         this.permissionRepository = permissionRepository;
@@ -118,6 +125,7 @@ public class RootPage extends VerticalLayout {
     }
 
     private void openRankDialog(Rank rank, Grid<Rank> grid) {
+        Account current = (Account) authService.get().orElse(null);
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(rank.getId() == null ? "Create Rank" : "Edit Rank: " + rank.getName());
 
@@ -135,7 +143,14 @@ public class RootPage extends VerticalLayout {
         colorPicker.setValue(rank.getColor() != null ? rank.getColor() : "#808080");
 
         MultiSelectComboBox<Permission> perms = new MultiSelectComboBox<>("Permissions");
-        perms.setItems(permissionRepository.findAll());
+        List<Permission> allPerms = permissionRepository.findAll();
+        
+        // ACE Restriction Logic: Filter what permissions can be granted based on current user's scope
+        List<Permission> availablePerms = allPerms.stream()
+                .filter(p -> current != null && current.canManagePermission(p.getNodeString()))
+                .collect(Collectors.toList());
+
+        perms.setItems(availablePerms);
         perms.setItemLabelGenerator(Permission::getNodeString);
         perms.setValue(rank.getPermissions());
         perms.setWidthFull();
@@ -202,6 +217,7 @@ public class RootPage extends VerticalLayout {
     }
 
     private void openGroupDialog(PermissionGroup group, Grid<PermissionGroup> grid) {
+        Account current = (Account) authService.get().orElse(null);
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(group.getId() == null ? "Create Group" : "Edit Group: " + group.getName());
 
@@ -219,7 +235,14 @@ public class RootPage extends VerticalLayout {
         colorPicker.setValue(group.getColor() != null ? group.getColor() : "#808080");
 
         MultiSelectComboBox<Permission> perms = new MultiSelectComboBox<>("Permissions");
-        perms.setItems(permissionRepository.findAll());
+        List<Permission> allPerms = permissionRepository.findAll();
+        
+        // ACE Restriction Logic: Only root or scoped editors can see relevant permissions
+        List<Permission> availablePerms = allPerms.stream()
+                .filter(p -> current != null && current.canManagePermission(p.getNodeString()))
+                .collect(Collectors.toList());
+
+        perms.setItems(availablePerms);
         perms.setItemLabelGenerator(Permission::getNodeString);
         perms.setValue(group.getPermissions());
         perms.setWidthFull();

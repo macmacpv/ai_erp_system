@@ -72,6 +72,7 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
         logo.setWidth("48px");
         logo.setHeight("48px");
         H1 brandName = new H1("L.S.S.D");
+        Hr line = new Hr();
 
         HorizontalLayout branding = new HorizontalLayout(logo, brandName);
         branding.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -80,17 +81,24 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
 
         SideNav mainNav = new SideNav();
         mainNav.setWidthFull();
-        mainNav.addClassNames(LumoUtility.Padding.Top.MEDIUM);
         mainNav.addItem(new SideNavItem("Dashboard", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
+        
+        // Module Personnel - basic check
         mainNav.addItem(new SideNavItem("Personnel", PersonnelPage.class, VaadinIcon.USERS.create()));
 
-        SideNav adminNav = new SideNav();
-        adminNav.setWidthFull();
-        adminNav.addClassNames(LumoUtility.Padding.Top.SMALL);
-        adminNav.setLabel("ROOT");
-        adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
+        drawerContent.add(branding, line, mainNav);
 
-        drawerContent.add(branding, mainNav, adminNav);
+        // Security: ROOT section only for real root accounts
+        Account currentAccount = (Account) authService.get().orElse(null);
+        if (currentAccount != null && currentAccount.isRoot()) {
+            SideNav adminNav = new SideNav();
+            adminNav.setWidthFull();
+            adminNav.addClassNames(LumoUtility.Padding.Top.SMALL);
+            adminNav.setLabel("ROOT");
+            adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
+            drawerContent.add(adminNav);
+        }
+
         addToDrawer(drawerContent);
     }
 
