@@ -52,25 +52,33 @@ public class Account implements UserDetails {
         }
 
         Set<GrantedAuthority> authorities = new HashSet<>();
+        
+        // 1. Direct Technical Permissions (from Account)
         authorities.addAll(directPermissions.stream()
                 .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
                 .collect(Collectors.toSet()));
 
-        if (employee != null && employee.getRank() != null) {
-            authorities.addAll(employee.getRank().getPermissions().stream()
-                    .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
-                    .collect(Collectors.toSet()));
+        // 2. Personnel Permissions (from Employee record)
+        if (employee != null) {
+            // From Rank
+            if (employee.getRank() != null) {
+                authorities.addAll(employee.getRank().getPermissions().stream()
+                        .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
+                        .collect(Collectors.toSet()));
+            }
+            // From Groups
+            for (PermissionGroup group : employee.getGroups()) {
+                authorities.addAll(group.getPermissions().stream()
+                        .map(p -> new SimpleGrantedAuthority(p.getNodeString()))
+                        .collect(Collectors.toSet()));
+            }
         }
         
         return authorities;
     }
 
-    @Override
-    public boolean isAccountNonExpired() { return true; }
-    @Override
-    public boolean isAccountNonLocked() { return active; }
-    @Override
-    public boolean isCredentialsNonExpired() { return true; }
-    @Override
-    public boolean isEnabled() { return active; }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return active; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return active; }
 }

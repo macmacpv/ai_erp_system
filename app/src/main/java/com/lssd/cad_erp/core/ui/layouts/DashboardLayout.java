@@ -11,7 +11,6 @@ import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -103,7 +102,6 @@ public class DashboardLayout extends AppLayout {
         headerLayout.add(subInfoSpan);
 
         subMenu.addItem(headerLayout).setEnabled(false);
-        subMenu.addItem(new Hr());
 
         subMenu.addItem("Wyloguj", e -> authService.logout());
 
