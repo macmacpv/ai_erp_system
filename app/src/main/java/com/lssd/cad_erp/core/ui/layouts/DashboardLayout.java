@@ -5,6 +5,7 @@ import com.lssd.cad_erp.core.identity.services.AuthService;
 import com.lssd.cad_erp.core.ui.views.DashboardPage;
 import com.lssd.cad_erp.core.ui.views.RootPage;
 import com.lssd.cad_erp.modules.personnel.domain.Employee;
+import com.lssd.cad_erp.modules.personnel.ui.views.PersonnelPage;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -29,20 +30,21 @@ public class DashboardLayout extends AppLayout {
 
     public DashboardLayout(@Autowired AuthService authService) {
         this.authService = authService;
-
         createHeader();
         createDrawer();
     }
 
     private void createHeader() {
-        H1 logo = new H1("LSSD CAD");
-        logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.MEDIUM);
+        H1 logo = new H1("L.S.S.D");
+        logo.addClassNames(LumoUtility.FontSize.LARGE);
 
         HorizontalLayout userArea = new HorizontalLayout();
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
         userArea.add(createUserMenu());
 
         DrawerToggle toggle = new DrawerToggle();
+        toggle.getStyle().set("cursor", "pointer");
+
         HorizontalLayout header = new HorizontalLayout(toggle, logo, userArea);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.setWidthFull();
@@ -73,12 +75,8 @@ public class DashboardLayout extends AppLayout {
                 String rankName = employee.getRank() != null ? employee.getRank().getName() : "Civilian";
                 String badge = employee.getBadgeNumber() != null ? "#" + employee.getBadgeNumber() : "";
                 subInfo = rankName + " " + badge;
-                avatarLabel = (employee.getFirstName() != null && !employee.getFirstName().isEmpty()
-                        ? employee.getFirstName().substring(0, 1)
-                        : "") +
-                        (employee.getLastName() != null && !employee.getLastName().isEmpty()
-                                ? employee.getLastName().substring(0, 1)
-                                : "");
+                avatarLabel = (employee.getFirstName() != null && !employee.getFirstName().isEmpty() ? employee.getFirstName().substring(0, 1) : "") +
+                              (employee.getLastName() != null && !employee.getLastName().isEmpty() ? employee.getLastName().substring(0, 1) : "");
             } else {
                 displayName = account.getUsername();
                 avatarLabel = displayName.substring(0, 1).toUpperCase();
@@ -87,12 +85,9 @@ public class DashboardLayout extends AppLayout {
 
         Avatar avatar = new Avatar(displayName);
         avatar.setAbbreviation(avatarLabel);
-        avatar.getStyle().set("cursor", "pointer");
-
         MenuItem menuItem = menuBar.addItem(avatar);
         SubMenu subMenu = menuItem.getSubMenu();
 
-        // Custom Header Section
         VerticalLayout headerLayout = new VerticalLayout();
         headerLayout.setPadding(false);
         headerLayout.setSpacing(false);
@@ -102,19 +97,19 @@ public class DashboardLayout extends AppLayout {
         headerLayout.add(subInfoSpan);
 
         subMenu.addItem(headerLayout).setEnabled(false);
-
-        subMenu.addItem("Wyloguj", e -> authService.logout());
+        subMenu.addItem("Logout", e -> authService.logout());
 
         return menuBar;
     }
 
     private void createDrawer() {
         SideNav mainNav = new SideNav();
-        mainNav.addItem(new SideNavItem("Pulpit", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
+        mainNav.addItem(new SideNavItem("Dashboard", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
+        mainNav.addItem(new SideNavItem("Personnel", PersonnelPage.class, VaadinIcon.USERS.create()));
 
         SideNav adminNav = new SideNav();
-        adminNav.setLabel("Administrator");
-        adminNav.addItem(new SideNavItem("Zarządzanie", RootPage.class, VaadinIcon.SERVER.create()));
+        adminNav.setLabel("Root Access");
+        adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
 
         addToDrawer(mainNav, adminNav);
     }

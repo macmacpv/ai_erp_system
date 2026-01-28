@@ -124,7 +124,7 @@ Each agent must create a new log file for every iteration.
 *   **Location:** `app_docs/ai_logs/`
 *   **Filename Format:** `<AGENT_PREFIX>_log_<YYYY-MM-DD>_<HH-MM>.md`
 *   **Content:**
-    *   Date and Time (UTC).
+    *   Actual! Date and Time (UTC).
     *   Iteration Number.
     *   Concise summary of executed actions.
 *   **Restriction:** Files must be short and simple. Do NOT start a cumulative log.

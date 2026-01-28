@@ -19,7 +19,10 @@ public class PermissionGroup {
     private String name;
 
     @Column(name = "group_type")
-    private String type; // e.g., 'DEPARTMENT', 'SPECIAL'
+    private String type;
+
+    @Column(length = 7)
+    private String color = "#808080";
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

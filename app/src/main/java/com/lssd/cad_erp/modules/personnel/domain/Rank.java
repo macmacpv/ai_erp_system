@@ -21,6 +21,9 @@ public class Rank {
 
     private Integer weight = 0;
 
+    @Column(length = 7)
+    private String color = "#808080";
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rank_permissions",
