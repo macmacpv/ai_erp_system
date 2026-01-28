@@ -78,7 +78,6 @@ html {
     --lumo-error-contrast-color: #ffffff;
 }
 
-/* Global Pointer */
 vaadin-button,
 vaadin-menu-bar-button,
 vaadin-menu-bar-item,
@@ -88,52 +87,13 @@ vaadin-tab,
     cursor: pointer !important;
 }
 
-/* Vertical Separation */
-vaadin-app-layout::part(drawer) {
-    border-right: 2px solid var(--lumo-contrast-10pct);
-    background-color: var(--lumo-base-color);
-}
-
-/* Drawer Header (Logo + Brand) */
-.drawer-header {
-    padding: var(--lumo-space-l) var(--lumo-space-m);
-    border-bottom: 1px solid var(--lumo-contrast-10pct);
-    margin-bottom: var(--lumo-space-m);
-    flex-direction: row !important;
-}
-
-.drawer-header img {
-    height: 42px !important;
-    width: 42px !important;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.drawer-header h1 {
-    font-size: var(--lumo-font-size-xl);
-    margin: 0;
-    margin-left: var(--lumo-space-m);
-    letter-spacing: 2px;
-    color: var(--lumo-primary-color);
-    font-variant: small-caps;
-    white-space: nowrap;
-}
-
-/* Navigation Items Spacing */
-vaadin-side-nav {
-    padding: 0 var(--lumo-space-m);
-}
-
-vaadin-side-nav-item {
-    margin: 6px 0;
-    border-radius: var(--lumo-border-radius-m);
-}
-
-vaadin-side-nav-item::part(link):hover {
+.address-bar {
     background-color: var(--lumo-contrast-5pct);
-}
-
-vaadin-side-nav-item[active]::part(link) {
-    background-color: var(--lumo-primary-color-10pct);
+    padding: 4px 16px;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: var(--lumo-font-size-s);
     color: var(--lumo-primary-text-color);
+    border: 1px solid var(--lumo-contrast-10pct);
+    margin-left: var(--lumo-space-m);
 }

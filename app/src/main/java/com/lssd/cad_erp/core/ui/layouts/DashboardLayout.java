@@ -22,14 +22,13 @@ import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DashboardLayout extends AppLayout implements AfterNavigationObserver {
 
     private final AuthService authService;
-    private final Span viewTitle = new Span();
+    private final Span currentPath = new Span();
 
     public DashboardLayout(@Autowired AuthService authService) {
         this.authService = authService;
@@ -38,63 +37,59 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
     }
 
     private void createHeader() {
-        viewTitle.addClassNames(
-            LumoUtility.FontSize.MEDIUM, 
-            LumoUtility.FontWeight.MEDIUM,
-            LumoUtility.TextColor.PRIMARY,
-            LumoUtility.Margin.Left.SMALL
-        );
-
         DrawerToggle toggle = new DrawerToggle();
 
-        HorizontalLayout breadcrumb = new HorizontalLayout(toggle, viewTitle);
-        breadcrumb.setAlignItems(FlexComponent.Alignment.CENTER);
-        breadcrumb.setPadding(false);
-        breadcrumb.setSpacing(false);
+        // Browser-style Address Bar
+        HorizontalLayout addressBar = new HorizontalLayout(currentPath);
+        addressBar.addClassName("address-bar");
+        addressBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        HorizontalLayout leftArea = new HorizontalLayout(toggle, addressBar);
+        leftArea.setAlignItems(FlexComponent.Alignment.CENTER);
+        leftArea.setPadding(false);
+        leftArea.setSpacing(false);
 
         HorizontalLayout userArea = new HorizontalLayout(createUserMenu());
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        HorizontalLayout header = new HorizontalLayout(breadcrumb, userArea);
+        HorizontalLayout header = new HorizontalLayout(leftArea, userArea);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.setWidthFull();
-        header.expand(breadcrumb);
+        header.expand(leftArea);
         header.addClassNames(LumoUtility.Padding.Left.SMALL, LumoUtility.Padding.Right.MEDIUM);
 
         addToNavbar(header);
     }
 
     private void createDrawer() {
-        // Wrapper for drawer content to manage spacing
         VerticalLayout drawerContent = new VerticalLayout();
         drawerContent.setSizeFull();
-        drawerContent.setPadding(false);
         drawerContent.setSpacing(false);
 
-        // Branding Section
+        // Branding Section (Centered via CSS .drawer-header)
         Image logo = new Image("/images/logo.png", "LSSD Logo");
-        logo.setHeight("42px");
-        logo.setWidth("42px");
-        
+        logo.setWidth("48px");
+        logo.setHeight("48px");
         H1 brandName = new H1("L.S.S.D");
         
         HorizontalLayout branding = new HorizontalLayout(logo, brandName);
         branding.setAlignItems(FlexComponent.Alignment.CENTER);
-        branding.addClassName("drawer-header");
         branding.setWidthFull();
 
-        // Navigation
+        // Navigation (Styling handled in styles.css)
         SideNav mainNav = new SideNav();
+        mainNav.setWidthFull();
+        mainNav.addClassNames(LumoUtility.Padding.Top.MEDIUM);
         mainNav.addItem(new SideNavItem("Dashboard", DashboardPage.class, VaadinIcon.DASHBOARD.create()));
         mainNav.addItem(new SideNavItem("Personnel", PersonnelPage.class, VaadinIcon.USERS.create()));
 
         SideNav adminNav = new SideNav();
+        adminNav.setWidthFull();
+        adminNav.addClassNames(LumoUtility.Padding.Top.SMALL);
         adminNav.setLabel("Root Access");
         adminNav.addItem(new SideNavItem("System Configuration", RootPage.class, VaadinIcon.SERVER.create()));
 
-        // Add to the vertical container
         drawerContent.add(branding, mainNav, adminNav);
-        
         addToDrawer(drawerContent);
     }
 
@@ -119,8 +114,8 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
                 String rankName = employee.getRank() != null ? employee.getRank().getName() : "Civilian";
                 String badge = employee.getBadgeNumber() != null ? "#" + employee.getBadgeNumber() : "";
                 subInfo = rankName + " " + badge;
-                avatarLabel = (employee.getFirstName() != null && !employee.getFirstName().isEmpty() ? employee.getFirstName().substring(0, 1) : "") +
-                              (employee.getLastName() != null && !employee.getLastName().isEmpty() ? employee.getLastName().substring(0, 1) : "");
+                avatarLabel = (employee.getFirstName() != null ? employee.getFirstName().substring(0, 1) : "") +
+                              (employee.getLastName() != null ? employee.getLastName().substring(0, 1) : "");
             }
         }
 
@@ -144,11 +139,9 @@ public class DashboardLayout extends AppLayout implements AfterNavigationObserve
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        viewTitle.setText("> " + getCurrentPageTitle());
-    }
-
-    private String getCurrentPageTitle() {
-        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-        return title == null ? "Untitled" : title.value().split("\\|")[0].trim();
+        // Update browser-style path bar
+        String path = event.getLocation().getPath();
+        if (path.isEmpty()) path = "home";
+        currentPath.setText("/ " + path.replace("/", " / "));
     }
 }
