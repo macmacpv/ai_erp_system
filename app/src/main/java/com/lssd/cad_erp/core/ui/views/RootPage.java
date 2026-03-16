@@ -29,7 +29,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
@@ -144,8 +143,9 @@ public class RootPage extends VerticalLayout implements HasDynamicTitle {
 
         MultiSelectComboBox<Permission> perms = new MultiSelectComboBox<>("Permissions");
         List<Permission> allPerms = permissionRepository.findAll();
-        
-        // ACE Restriction Logic: Filter what permissions can be granted based on current user's scope
+
+        // ACE Restriction Logic: Filter what permissions can be granted based on
+        // current user's scope
         List<Permission> availablePerms = allPerms.stream()
                 .filter(p -> current != null && current.canManagePermission(p.getNodeString()))
                 .collect(Collectors.toList());
@@ -236,8 +236,9 @@ public class RootPage extends VerticalLayout implements HasDynamicTitle {
 
         MultiSelectComboBox<Permission> perms = new MultiSelectComboBox<>("Permissions");
         List<Permission> allPerms = permissionRepository.findAll();
-        
-        // ACE Restriction Logic: Only root or scoped editors can see relevant permissions
+
+        // ACE Restriction Logic: Only root or scoped editors can see relevant
+        // permissions
         List<Permission> availablePerms = allPerms.stream()
                 .filter(p -> current != null && current.canManagePermission(p.getNodeString()))
                 .collect(Collectors.toList());

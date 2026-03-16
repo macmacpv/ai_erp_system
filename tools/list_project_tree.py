@@ -32,7 +32,7 @@ def list_project_files(startpath):
     }
     
     ignore_files = {
-        '.DS_Store', 'Thumbs.db', 'requirements.txt',
+        '.DS_Store', 'Thumbs.db', 'requirements.txt', 'LICENSE',
         'SERIALIZED_CONTEXT.txt', 'RECONSTRUCTOR_CONTEXT.md', 'START_CONTEXT.md',
         'reconstructor-file-list.txt', '_SESSION_ADDENDUM_BUFFER.md',
         'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'yarn-error.log', 
