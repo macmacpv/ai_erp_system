@@ -11,6 +11,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
@@ -20,9 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Route(value = "personnel", layout = DashboardLayout.class)
-@PageTitle("Personnel Roster | LSSD")
 @PermitAll
-public class PersonnelPage extends VerticalLayout {
+public class PersonnelPage extends VerticalLayout implements HasDynamicTitle {
 
     private final EmployeeRepository employeeRepository;
     private final VerticalLayout content = new VerticalLayout();
@@ -105,5 +105,10 @@ public class PersonnelPage extends VerticalLayout {
         badge.getStyle().set("border-color", r.getColor());
         badge.getStyle().set("font-weight", "bold");
         return badge;
+    }
+
+    @Override
+    public String getPageTitle() {
+        return "LSSD | Personnel";
     }
 }

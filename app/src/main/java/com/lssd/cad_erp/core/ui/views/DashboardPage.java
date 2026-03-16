@@ -11,14 +11,14 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
 @Route(value = "dashboard", layout = DashboardLayout.class)
-@PageTitle("Pulpit | LSSD")
 @PermitAll
-public class DashboardPage extends VerticalLayout {
+public class DashboardPage extends VerticalLayout implements HasDynamicTitle {
     
     private final AppNotificationService notificationService;
     private final AuthService authService;
@@ -58,5 +58,10 @@ public class DashboardPage extends VerticalLayout {
         );
         
         Notify.success("Powiadomienie Push wysłane.");
+    }
+
+    @Override
+    public String getPageTitle() {
+        return "LSSD | Dashboard";
     }
 }

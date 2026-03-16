@@ -28,6 +28,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
@@ -37,9 +38,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Route(value = "root", layout = DashboardLayout.class)
-@PageTitle("System Configuration | LSSD")
 @RolesAllowed("ROOT")
-public class RootPage extends VerticalLayout {
+public class RootPage extends VerticalLayout implements HasDynamicTitle {
 
     private final AuthService authService;
     private final RankRepository rankRepository;
@@ -270,5 +270,10 @@ public class RootPage extends VerticalLayout {
         });
         dialog.setConfirmButtonTheme("error primary");
         dialog.open();
+    }
+
+    @Override
+    public String getPageTitle() {
+        return "LSSD | System configuration";
     }
 }
